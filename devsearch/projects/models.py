@@ -1,3 +1,5 @@
+from distutils.command.upload import upload
+from email.policy import default
 from sqlite3 import Timestamp
 from django.db import models
 import uuid
@@ -7,6 +9,8 @@ class Project(models.Model):
     title = models.CharField(max_length=200)
     # null=True: db can have null value, blank:True, it can be left blank in form
     description = models.TextField(null=True, blank=True)
+    # image upload with a default image already if not uploaded
+    featured_image = models.ImageField(null=True, blank=True, default='default.jpg')
     demo_link = models.CharField(max_length=2000, null=True, blank=True)
     source_link = models.CharField(max_length=2000, null=True, blank=True)
     # many to many relationship with project
@@ -29,7 +33,7 @@ class Project(models.Model):
 # one to many relationship
 class Review(models.Model):
     # creating tuple for value that will be prefilled
-    VOTE_TYPE = (
+    VOTE_TYPE = ( 
         ('up', 'Up Vote'),
         ('down', 'Down Vote')
     )
