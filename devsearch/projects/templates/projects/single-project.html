@@ -1,0 +1,19 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<h1>{{ project.title }} </h1>
+<h1>Singhle Project template</h1>
+<br>
+<p>{{ project.description }}</p>
+<p>{{ project.vote_total }}</p>
+<hr>
+<!-- querying many to many relationship in jinja itself -->
+{% for tag in project.tags.all %}
+ <span style="border:2px solid grey">{{ tag }}</span>
+{% endfor %}
+
+
+
+
+{% endblock content %} 
