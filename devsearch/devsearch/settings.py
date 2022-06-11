@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-v_lbm*d2-r0#srs!v+t9m!-fq@m1_pv%th0sq6%!0ky%95&&_b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -42,11 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'projects.apps.ProjectsConfig'
+    'projects.apps.ProjectsConfig',
+    'users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # from whitenoise documentation
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -129,6 +133,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
+# It will show django where static files are located in 'production' environment
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # to tell django where to store user uploaded images
 MEDIA_ROOT = BASE_DIR / 'static/images'
