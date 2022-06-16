@@ -20,11 +20,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('projects/', include('projects.urls')),
+    path('', include('projects.urls')),
     path('users/', include('users.urls'))
 ]
 
-# wierd way to tell django where image URL is
+# wierd way to tell django where image URL is 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # to access 'staticfiles' in 'production' environment: confusing me a bit

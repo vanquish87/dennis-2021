@@ -32,7 +32,7 @@ def createProject(request):
             # onetoMany relatioship update , so that owner data can be saved
             project.owner = profile
             project.save()
-            return redirect('projects')
+            return redirect('account')
     context = {'form': form}
     return render(request, 'projects/project_form.html', context)
 
@@ -51,7 +51,7 @@ def updateProject(request, pk):
         if form.is_valid():
             # to save it to Project Model
             form.save()
-            return redirect('projects')
+            return redirect('account')
     context = {'form': form}
     return render(request, 'projects/project_form.html', context)
 
@@ -66,4 +66,4 @@ def deleteProject(request, pk):
         return redirect('projects')
     context = {'object': project} 
         
-    return render(request, 'projects/delete_template.html', context)
+    return render(request, 'delete_template.html', context)

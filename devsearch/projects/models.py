@@ -1,6 +1,3 @@
-from distutils.command.upload import upload
-from email.policy import default
-from sqlite3 import Timestamp
 from django.db import models
 import uuid
 from users.models import Profile
