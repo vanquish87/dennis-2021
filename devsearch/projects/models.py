@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from users.models import Profile
+
 # Create your models here.
 class Project(models.Model):
     # many to one relationship 
@@ -28,6 +29,7 @@ class Project(models.Model):
     # for ex: in Admin Panel
     def __str__(self):
         return self.title
+
 
 # one to many relationship
 class Review(models.Model):
