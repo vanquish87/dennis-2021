@@ -1,15 +1,17 @@
 import profile
+from turtle import title
 from django.shortcuts import redirect, render, redirect
 from django.http import HttpResponse
 from .models import Project
 from .forms import ProjectForm
 from django.contrib.auth.decorators import login_required
+from .utils import searchProjects
 
 # Create your views here.
 # hence 'projects/projects.html' will work. since folder needs to be specified
 def projects(request):
-    projects = Project.objects.all()
-    context = {'projects': projects}
+    projects, search_query = searchProjects(request)
+    context = {'projects': projects, 'search_query': search_query}
     return render(request, 'projects/projects.html', context)
 
 
