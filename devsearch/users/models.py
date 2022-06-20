@@ -43,3 +43,28 @@ class Skill(models.Model):
 
     def __str__(self):
          return str(self.name)
+
+
+class Message(models.Model):
+    # blank=True, null=True because non registered user can also send message
+    sender = models.ForeignKey(Profile, on_delete=models.SET_NULL, blank=True, null=True)
+    # related_name='messages' is used because both sender n recipient are connected to same model ie, Profile hence needs differnt name to access Message model in Parent child relationship
+    recipient = models.ForeignKey(Profile, on_delete=models.SET_NULL, blank=True, null=True, related_name='messages')
+
+    name = models.CharField(max_length=200, blank=True, null=True)
+    email = models.EmailField(max_length=200, blank=True, null=True)
+    subject = models.CharField(max_length=200, blank=True, null=True)
+    body =  models.TextField()
+    is_read = models.BooleanField(default=False, null=True)
+
+    
+    # create Timestamp automatically
+    created = models.DateTimeField(auto_now_add=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True, editable=False)
+
+    def __str__(self):
+         return str(self.subject)
+    
+    class Meta:
+        # by unread first and created second priority
+        ordering = ['is_read', '-created']

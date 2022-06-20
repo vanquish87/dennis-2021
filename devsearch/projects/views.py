@@ -1,24 +1,38 @@
-import profile
-from turtle import title
 from django.shortcuts import redirect, render, redirect
-from django.http import HttpResponse
 from .models import Project
-from .forms import ProjectForm
+from .forms import ProjectForm, ReviewForm
 from django.contrib.auth.decorators import login_required
-from .utils import searchProjects
+from .utils import searchProjects, paginationProjects
+from django.contrib import messages
 
 # Create your views here.
 # hence 'projects/projects.html' will work. since folder needs to be specified
 def projects(request):
     projects, search_query = searchProjects(request)
-    context = {'projects': projects, 'search_query': search_query}
+    results = 3
+    custom_range, projects = paginationProjects(request, projects, results)
+
+    context = {'projects': projects, 'search_query': search_query, 'custom_range': custom_range}
     return render(request, 'projects/projects.html', context)
 
 
 # -------------CRUD views------------------
 def project(request, pk):
     projectObj = Project.objects.get(id=pk)
-    return render(request, 'projects/single-project.html', {'project': projectObj})
+    form = ReviewForm()
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        review = form.save(commit=False)
+        review.project = projectObj
+        review.owner = request.user.profile
+        review.save()
+        # update vote count
+        projectObj.getVoteCount
+        # flash messages
+        messages.success(request, 'Your review was successfully submitted')
+        return redirect('project', pk=projectObj.id)
+
+    return render(request, 'projects/single-project.html', {'project': projectObj, 'form': form})
     
 @login_required(login_url='login')
 def createProject(request):

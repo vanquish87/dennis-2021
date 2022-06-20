@@ -1,3 +1,4 @@
+from email import message
 from multiprocessing import context
 import profile
 from urllib import request
@@ -7,9 +8,9 @@ from django.contrib.auth.decorators import login_required
 # for flashing messages
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Profile
-from .forms import CustomUserCreationForm, ProfileForm, SkillForm
-from .utils import searchProfiles
+from .models import Profile, Message
+from .forms import CustomUserCreationForm, ProfileForm, SkillForm, MessageForm
+from .utils import searchProfiles, paginationProfiles
 
 # Create your views here.
 def loginUser(request):
@@ -18,7 +19,7 @@ def loginUser(request):
         return redirect('profiles')
     if request.method == 'POST':
         # request.method is a dictionary of all the data in POST
-        username = request.POST['username']
+        username = request.POST['username'].lower()
         password = request.POST['password']
 
         # to check if user exist in database
@@ -34,7 +35,8 @@ def loginUser(request):
         if user is not None:
             # sets session for user
             login(request, user)
-            return redirect('profiles')
+            # if next in the url value so redirect there else to account page
+            return redirect(request.GET['next'] if 'next' in request.GET else 'account')
         else:
             messages.error(request, 'Username or Password is incorrect')
 
@@ -72,7 +74,9 @@ def registerUser(request):
 def profiles(request):
     # using external function to make code cleaner
     profiles, search_query = searchProfiles(request)
-    context = {'profiles': profiles, 'search_query': search_query}
+    results = 2
+    custom_range, profiles = paginationProfiles(request, profiles, results)
+    context = {'profiles': profiles, 'search_query': search_query, 'custom_range': custom_range}
 
     return render(request, 'users/profiles.html', context)
 
@@ -158,3 +162,52 @@ def deleteSkill(request, pk):
 
     context = {'object': skill}
     return render(request, 'delete_template.html', context)
+
+
+@login_required(login_url='login')
+def inbox(request):
+    profile = request.user.profile
+    # related_name='messages' is used because both sender n recipient are connected to same model ie, Profile hence needs differnt name to access Message model in Parent child relationship
+    messageRequests = profile.messages.all()
+    unreadCount = messageRequests.filter(is_read=False).count()
+    context = {'messageRequests': messageRequests, 'unreadCount': unreadCount}
+    return render(request,  'users/inbox.html', context)
+
+
+@login_required(login_url='login')
+def viewMessage(request, pk):
+    profile = request.user.profile
+    # only get messages for logged in profile
+    message = profile.messages.get(id=pk)
+    if message.is_read == False:
+        message.is_read = True
+        message.save()
+
+    context = {'message': message}
+    return render(request,  'users/message.html', context)
+
+
+def createMessage(request, pk):
+    recipient = Profile.objects.get(id=pk)
+    form = MessageForm()
+    # since non logged in can also send message we need try method to check
+    try:
+        sender = request.user.profile
+    except:
+        sender = None
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.sender = sender
+            message.recipient = recipient
+            # if logged in
+            if sender:
+                message.name = sender.name
+                message.email = sender.email
+            message.save()
+            messages.success(request, 'Your message was successfully sent!')
+            return redirect('user-profile', pk=recipient.id)
+
+    context = {'recipient': recipient, 'form': form}
+    return render(request,  'users/message_form.html', context)
