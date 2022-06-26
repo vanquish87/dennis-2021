@@ -50,9 +50,12 @@ def updateProfile(sender, instance, created, **kwargs):
 # since one to one relationship, reverse of profile deleted will not delete user
 # to work around we use post_delete signal to fire this deleteUser 
 def deleteUser(sender, instance, **kwargs):
-    user = instance.user
-    user.delete()
-    print(f'Deleting user....{instance} ')
+    try:
+        user = instance.user
+        user.delete()
+        print(f'Deleting user....{instance} ')
+    except:
+        pass
 
 # anytime User model is created/updated this signal will run
 post_save.connect(createProfile, sender=User)

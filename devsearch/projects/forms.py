@@ -9,7 +9,7 @@ class ProjectForm(ModelForm):
         model = Project
         # django will create all the fiels according to model with __all__
         # fields = '__all__'
-        fields = ['title', 'featured_image', 'description', 'demo_link', 'source_link', 'tags']
+        fields = ['title', 'featured_image', 'description', 'demo_link', 'source_link']
         # with this we are modifying classes in html for form
         widgets = {
             'tags': forms.CheckboxSelectMultiple()
