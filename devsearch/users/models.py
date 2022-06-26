@@ -31,6 +31,21 @@ class Profile(models.Model):
     def __str__(self):
          return str(self.username)
 
+    class Meta:
+        # results display in which order
+        # ordering : highest vote_ratio first, if there is tie than by highest vote_total
+        ordering = ['-created']
+
+    # in case user deletes project image we still need something to render template
+    @property
+    def imageURL(self):
+        try:
+            url = self.profile_image.url
+        except:
+            url = ''
+        return url
+
+
 class Skill(models.Model):
     # many to one relationship 
     owner = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)

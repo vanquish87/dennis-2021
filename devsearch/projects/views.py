@@ -1,5 +1,5 @@
 from django.shortcuts import redirect, render, redirect
-from .models import Project
+from .models import Project, Tag
 from .forms import ProjectForm, ReviewForm
 from django.contrib.auth.decorators import login_required
 from .utils import searchProjects, paginationProjects
@@ -40,6 +40,8 @@ def createProject(request):
 
     form = ProjectForm()
     if request.method == 'POST':
+        # get newtags and create a list using python methods 
+        newtags = request.POST.get('newtags').replace(',', ' ').split()
         # creating instance of the form with 'POST' data
         form = ProjectForm(request.POST, request.FILES)
         if form.is_valid():
@@ -48,6 +50,12 @@ def createProject(request):
             # onetoMany relatioship update , so that owner data can be saved
             project.owner = profile
             project.save()
+            for tag in newtags:
+                # django inbuild method to create or get existing data
+                # created will be a True or False value
+                tag, created = Tag.objects.get_or_create(name=tag.upper())
+                # manytoMany relationship
+                project.tags.add(tag)
             return redirect('account')
     context = {'form': form}
     return render(request, 'projects/project_form.html', context)
@@ -61,12 +69,22 @@ def updateProject(request, pk):
     project = profile.project_set.get(id=pk)
     # project = Project.objects.get(id=pk)
     form = ProjectForm(instance=project)
+
     if request.method == 'POST':
+        # get newtags and create a list using python methods 
+        newtags = request.POST.get('newtags').replace(',', ' ').split()
         # creating instance of the form with 'POST' data
         form = ProjectForm(request.POST, request.FILES, instance=project)
         if form.is_valid():
             # to save it to Project Model
             form.save()
+            for tag in newtags:
+                # django inbuild method to create or get existing data
+                # created will be a True or False value
+                tag, created = Tag.objects.get_or_create(name=tag.upper())
+                # manytoMany relationship
+                project.tags.add(tag)
+
             return redirect('account')
     context = {'form': form}
     return render(request, 'projects/project_form.html', context)
